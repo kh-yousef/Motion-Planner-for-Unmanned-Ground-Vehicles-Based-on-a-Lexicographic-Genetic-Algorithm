@@ -6,19 +6,18 @@ def ranking_evaluation(gas, fit_array):
     step_ik = gas['ranking']['step_ik']
     step_path_len = gas['ranking'].get('step_path_len', 5) # Fallback in case step_path_len isn't explicitly defined
 
-    # Replace np.floor with modulo arithmetic
+    
     fit_array[:, gas['fitIdx']['ikFitnessModified']] = fit_array[:, gas['fitIdx']['ikFitness']] - (fit_array[:, gas['fitIdx']['ikFitness']] % step_ik)
     fit_array[:, gas['fitIdx']['pathLengthModified']] = fit_array[:, gas['fitIdx']['pathLength']] - (fit_array[:, gas['fitIdx']['pathLength']] % step_path_len)
 
-    # Extract columns for readability (matching your original f_ik_mod style)
+    # Extract columns for readability 
     f_ik_mod = fit_array[:, gas['fitIdx']['ikFitnessModified']]
     f_path_mod = fit_array[:, gas['fitIdx']['pathLengthModified']]
     f_node = fit_array[:, gas['fitIdx']['nodeCount']]
     f_und = fit_array[:, gas['fitIdx']['undulation']]
 
     # 2. Initial Base Sort
-    # MATLAB priority (left-to-right): [ikFitnessModified, nodeCount, undulation, pathLengthModified]
-    # np.lexsort evaluates right-to-left, so the tuple is reversed.
+    
     sort_tuple_initial = (f_path_mod, f_und, f_node, f_ik_mod)
     initial_order = np.lexsort(sort_tuple_initial)
     fit_array = fit_array[initial_order]
@@ -36,7 +35,7 @@ def ranking_evaluation(gas, fit_array):
     for i in range(1, fit_array.shape[0]):
         diff_array[i] = np.sum(np.abs(fit_array[i-1, cols_to_check] - fit_array[i, cols_to_check]))
 
-    # 4. Two-Pass Block Sub-Sorting (Intentionally preserving the MATLAB edge-case)
+    # 4. Two-Pass Block Sub-Sorting 
     start = 0
     for i in range(fit_array.shape[0]):
         if diff_array[i] > 0:
@@ -47,7 +46,7 @@ def ranking_evaluation(gas, fit_array):
             b_ik_raw = block[:, gas['fitIdx']['ikFitness']]
             b_path_raw = block[:, gas['fitIdx']['pathLength']]
             
-            # MATLAB priority: [ikFitness, pathLength]. Reversed for lexsort.
+            # priority: [ikFitness, pathLength]. 
             block_order = np.lexsort((b_path_raw, b_ik_raw))
             fit_array[start:stop] = block[block_order]
             
